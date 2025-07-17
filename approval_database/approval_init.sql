@@ -21,3 +21,10 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- Add similar inserts for your own approval blocks or initial workflow configs as needed.
+
+-- Example: Insert approver assignments for a step instance (assume step instance ID of 1, adjust as needed)
+INSERT INTO approval_workflow_instance_step_approver (step_instance_id, approver_id, status)
+VALUES
+    (1, 'manager_jane', 'pending'),
+    (1, 'manager_bob', 'pending')
+ON CONFLICT DO NOTHING;

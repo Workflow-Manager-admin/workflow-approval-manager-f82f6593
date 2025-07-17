@@ -95,6 +95,25 @@ CREATE INDEX IF NOT EXISTS idx_instance_step_instance_id ON approval_workflow_in
 -- Index for querying running/completed workflow instances for a business object
 CREATE INDEX IF NOT EXISTS idx_instance_business_object ON approval_workflow_instance(business_object_id);
 
+-- ===============================
+-- Table: approval_workflow_instance_step_approver
+-- Tracks individual approvers for each workflow step instance,
+-- supporting multi-approver and parallel-approver steps.
+-- ===============================
+CREATE TABLE IF NOT EXISTS approval_workflow_instance_step_approver (
+    id SERIAL PRIMARY KEY,
+    step_instance_id INTEGER NOT NULL REFERENCES approval_workflow_instance_step(id) ON DELETE CASCADE,
+    approver_id VARCHAR(100) NOT NULL, -- user ID or entity assigned as approver
+    status VARCHAR(32) NOT NULL DEFAULT 'pending', -- pending, approved, rejected, skipped, etc.
+    actioned_at TIMESTAMPTZ, -- Time when approval/rejection happened
+    comments TEXT,
+    extra_metadata JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(step_instance_id, approver_id)
+);
+CREATE INDEX IF NOT EXISTS idx_step_approver_instance_id ON approval_workflow_instance_step_approver(step_instance_id);
+
 -- Make updated_at auto-update on row modification (PostgreSQL 12+ can use triggers or generated columns; here a trigger recommended)
 -- Trigger definitions not included here (add separately if needed).
 
